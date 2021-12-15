@@ -1,62 +1,59 @@
-import React from 'react';
-import Head from 'next/head';
-import { Theme, makeStyles, createStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogActions from '@material-ui/core/DialogActions';
-import Typography from '@material-ui/core/Typography';
-import Link from '../components/Link';
+import React, { useState, useEffect } from "react";
+import Head from "next/head";
+import Link from "../components/Link";
+import { Result, Button, Typography } from "antd";
+import Header from "../components/header";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      textAlign: 'center',
-      paddingTop: theme.spacing(4),
-    },
-  })
-);
+const Home = () => {
+  const [login, setLogin] = useState(false);
+  const { Title } = Typography;
 
-function Home() {
-  const classes = useStyles({});
-  const [open, setOpen] = React.useState(false);
-  const handleClose = () => setOpen(false);
-  const handleClick = () => setOpen(true);
+  if (typeof window === "undefined") return null;
+  const token = localStorage.getItem("token");
+  let user = localStorage.getItem("user");
+  if (user) user = JSON.parse(user);
+  useEffect(() => {
+    if (token) setLogin(true);
+  }, [token]);
 
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setLogin(false);
+  };
   return (
-    <React.Fragment>
+    <div className=".container">
       <Head>
-        <title>Home - Nextron (with-typescript-material-ui)</title>
+        <title>Chatting</title>
+        <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className={classes.root}>
-        <Dialog open={open} onClose={handleClose}>
-          <DialogTitle>Super Secret Password</DialogTitle>
-          <DialogContent>
-            <DialogContentText>1-2-3-4-5</DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button color="primary" onClick={handleClose}>
-              OK
+      <Header />
+      <main className=".main">
+        {login /* Login Homepage */ ? (
+          <>
+            <Button
+              key="buy"
+              type="primary"
+              onClick={() => {
+                logout();
+              }}
+            >
+              Log out
             </Button>
-          </DialogActions>
-        </Dialog>
-        <Typography variant="h4" gutterBottom>
-          Material-UI
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          with Nextron
-        </Typography>
-        <img src="/images/logo.png" />
-        <Typography gutterBottom>
-          <Link href="/next">Go to the next page</Link>
-        </Typography>
-        <Button variant="contained" color="secondary" onClick={handleClick}>
-          Super Secret Password
-        </Button>
-      </div>
-    </React.Fragment>
+          </>
+        ) : (
+          /* Landing Page - no login
+          token */
+          <>
+            <Result status="404" />
+            <Title level={3}>Please Login</Title>
+            <Link href="/login">
+              <Button type="primary">Log In</Button>
+            </Link>
+          </>
+        )}
+      </main>
+    </div>
   );
 };
 
